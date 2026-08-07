@@ -90,20 +90,20 @@ class QaThreadSeeder extends Seeder
             ],
             [
                 'certification_id' => $certificationIds[1],
-                'title' => '（キーワード）についての質問',
+                'title' => '△△についての質問',
                 'body' => '○○は○○とはどういう意味でしょうか？',
                 'minutes_ago' => 160,
                 'reply_body' => '○○は○○なので、○○という意味です。',
             ],
             [
                 'certification_id' => $certificationIds[1],
-                'title' => '××についての質問',
+                'title' => '××について',
                 'body' => '××は（キーワード）になるのはどうしてでしょうか。',
                 'minutes_ago' => 140,
             ],
             [
                 'certification_id' => $certificationIds[2],
-                'title' => '○○についての質問',
+                'title' => '○○について',
                 'body' => '○○は○○という理解で問題ないでしょうか？',
                 'minutes_ago' => 120,
                 'reply_body' => 'ほぼ問題ないですが、○○も考慮できるとよいと思います。○○が参考になります。',
@@ -112,8 +112,8 @@ class QaThreadSeeder extends Seeder
             ],
             [
                 'certification_id' => $certificationIds[3],
-                'title' => '××についての質問',
-                'body' => '××は××というのがわかりません。',
+                'title' => '△△について',
+                'body' => '××は（キーワード）というのがわかりません。',
                 'minutes_ago' => 100,
             ],
         ];
@@ -169,8 +169,8 @@ class QaThreadSeeder extends Seeder
                 $thread = QaThread::create([
                     'user_id' => $student->id,
                     'certification_id' => $certification->id,
-                    'title' => fake()->realText(50),
-                    'body' => fake()->realText(250),
+                    'title' => '○○について',
+                    'body' => fake()->realText(50),
                     'status' => QaThreadStatus::UnResolved->value,
                 ]);
                 $thread->forceFill(['created_at' => $createdAt, 'updated_at' => $createdAt])->save();

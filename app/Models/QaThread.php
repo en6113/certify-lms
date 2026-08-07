@@ -62,7 +62,7 @@ class QaThread extends Model
         return $this->hasMany(QaThreadReply::class);
     }
 
-    public function scopeForCertification(Builder $query, ?string $certificationId): Builder
+    public function scopeCertification(Builder $query, ?string $certificationId): Builder
     {
         if ($certificationId === null || $certificationId === '') {
             return $query;
@@ -91,8 +91,7 @@ class QaThread extends Model
         }
 
         return $query->where(function ($q) use ($keyword) {
-            $q->where('title', 'LIKE', '%'.$keyword.'%')
-                ->orWhere('body', 'LIKE', '%'.$keyword.'%');
+            $q->where('body', 'LIKE', '%'.$keyword.'%');
         });
     }
 
@@ -113,20 +112,15 @@ class QaThread extends Model
     }
 
     /**
-     * 操作者ロールに応じて表示行を絞り込む scope。
-     *
-     * - admin: 全件
-     * - coach: 担当資格のスレッドのみ
-     * - student: 公開済資格すべてのスレッド
-     * - その他: 空集合
+     * 操作者ロールに応じて一覧表示行を絞り込む scope。admin は全件、coach は担当資格のみ、studentは公開済資格すべて。
+     * 3ロール共通の一覧画面 (`qa-thread.index`) で利用する。
      */
     public function scopeForUser(Builder $query, User $user): Builder
     {
         return match ($user->role) {
             UserRole::Admin => $query,
             UserRole::Coach => $query->assignedTo($user),
-            UserRole::Student => $query->published($user),
-            default => $query->whereRaw('1 = 0'),
+            UserRole::Student => $query->published(),
         };
     }
 }

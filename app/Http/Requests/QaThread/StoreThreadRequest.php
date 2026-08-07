@@ -14,7 +14,7 @@ use Illuminate\Validation\Rule;
  *
  * 質問の投稿は受講中の受講生のみ（コーチ・adminは質問対象外）
  */
-class ThreadRequest extends FormRequest
+class StoreThreadRequest extends FormRequest
 {
     public function authorize(): bool
     {
