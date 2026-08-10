@@ -55,11 +55,11 @@ class QaThread extends Model
     }
 
     /**
-     * @return HasMany<QaThreadReply, $this>
+     * @return HasMany<QaReply, $this>
      */
     public function replies(): HasMany
     {
-        return $this->hasMany(QaThreadReply::class);
+        return $this->hasMany(QaReply::class);
     }
 
     public function scopeCertification(Builder $query, ?string $certificationId): Builder

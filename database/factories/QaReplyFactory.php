@@ -5,17 +5,17 @@ declare(strict_types=1);
 namespace Database\Factories;
 
 use App\Enums\UserRole;
+use App\Models\QaReply;
 use App\Models\QaThread;
-use App\Models\QaThreadReply;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<QaThreadReply>
+ * @extends Factory<QaReply>
  */
-class QaThreadReplyFactory extends Factory
+class QaReplyFactory extends Factory
 {
-    protected $model = QaThreadReply::class;
+    protected $model = QaReply::class;
 
     /**
      * @return array<string, mixed>

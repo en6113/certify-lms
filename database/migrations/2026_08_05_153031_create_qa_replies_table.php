@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('qa_thread_replies', function (Blueprint $table) {
+        Schema::create('qa_replies', function (Blueprint $table) {
             $table->ulid('id')->primary();
             $table->foreignUlid('qa_thread_id')
                 ->constrained('qa_threads')
@@ -33,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('qa_thread_replies');
+        Schema::dropIfExists('qa_replies');
     }
 };

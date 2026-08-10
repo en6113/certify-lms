@@ -10,7 +10,7 @@ use Illuminate\Foundation\Http\FormRequest;
 /**
  * QaThread の質問スレッドに回答を投稿する際の入力検証。
  *
- * 回答できるのは受講生と担当資格のコーチ（管理者は回答できない）
+ * 回答者は受講生と担当資格のコーチのみ（管理者は回答できない）
  */
 class ReplyRequest extends FormRequest
 {

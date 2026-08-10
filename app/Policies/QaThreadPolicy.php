@@ -23,7 +23,12 @@ class QaThreadPolicy
 {
     public function viewAny(User $user): bool
     {
-        return in_array($user->role, [UserRole::Admin, UserRole::Coach, UserRole::Student], true);
+        return match ($user->role) {
+            UserRole::Admin => true,
+            UserRole::Coach => true,
+            UserRole::Student => $user->status === UserStatus::InProgress,
+            default => false,
+        };
     }
 
     public function view(User $user, QaThread $thread): bool
@@ -49,7 +54,8 @@ class QaThreadPolicy
 
     public function delete(User $user, QaThread $thread): bool
     {
-        return $this->isOwnedByActiveStudent($user, $thread);
+        return $this->isOwnedByActiveStudent($user, $thread)
+            || $user->role === UserRole::Admin;
     }
 
     public function resolve(User $user, QaThread $thread): bool

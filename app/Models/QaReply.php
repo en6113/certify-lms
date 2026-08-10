@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * 関連: QaThread(親、必須) / User(受講生、コーチ)
  * SoftDelete は採用しない(物理削除前提)。
  */
-class QaThreadReply extends Model
+class QaReply extends Model
 {
     use HasFactory, HasUlids;
 
@@ -28,9 +28,9 @@ class QaThreadReply extends Model
     /**
      * @return BelongsTo<QaThread, $this>
      */
-    public function qaThread(): BelongsTo
+    public function thread(): BelongsTo
     {
-        return $this->belongsTo(QaThread::class);
+        return $this->belongsTo(Qathread::class);
     }
 
     /**

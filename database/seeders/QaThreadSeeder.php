@@ -9,8 +9,8 @@ use App\Enums\QaThreadStatus;
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
 use App\Models\Certification;
+use App\Models\QaReply;
 use App\Models\QaThread;
-use App\Models\QaThreadReply;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
@@ -138,7 +138,7 @@ class QaThreadSeeder extends Seeder
                     continue;
                 }
 
-                $reply = QaThreadReply::create([
+                $reply = QaReply::create([
                     'qa_thread_id' => $thread->id,
                     'reply_user_id' => $coach->id,
                     'body' => $row['reply_body'],
@@ -185,7 +185,7 @@ class QaThreadSeeder extends Seeder
                         continue;
                     }
 
-                    $reply = QaThreadReply::create([
+                    $reply = QaReply::create([
                         'qa_thread_id' => $thread->id,
                         'reply_user_id' => $coach->id,
                         'body' => fake()->realText(250),
