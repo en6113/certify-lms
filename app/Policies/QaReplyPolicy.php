@@ -40,12 +40,12 @@ class QaReplyPolicy
 
     public function update(User $user, QaReply $reply): bool
     {
-        return $reply->user_id === $user->id;
+        return $reply->reply_user_id === $user->id;
     }
 
     public function delete(User $user, QaReply $reply): bool
     {
-        return $reply->user_id === $user->id
+        return $reply->reply_user_id === $user->id
             || $user->role === UserRole::Admin;
     }
 

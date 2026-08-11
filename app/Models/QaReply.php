@@ -30,7 +30,7 @@ class QaReply extends Model
      */
     public function thread(): BelongsTo
     {
-        return $this->belongsTo(Qathread::class);
+        return $this->belongsTo(QaThread::class);
     }
 
     /**

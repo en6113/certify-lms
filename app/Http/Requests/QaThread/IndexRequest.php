@@ -11,11 +11,7 @@ use Illuminate\Validation\Rule;
 
 /**
  * QaThread 一覧アクセスの入力検証。受講生 / コーチ / admin 共通で利用される。
- *
  * - 共通: `status` / `certification_id` / `keyword` でフィルタ可
- * - 受講生: 公開資格すべてのスレッド
- * - コーチ: 担当資格のスレッドのみ
- * - admin: 公開停止中の資格含め、すべての資格のスレッド
  */
 class IndexRequest extends FormRequest
 {

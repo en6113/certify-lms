@@ -120,8 +120,10 @@ class QaThreadController extends Controller
 
         $action($thread);
 
+        $indexRoute = request()->routeIs('admin.*') ? 'admin.qa-board.index' : 'qa-board.index';
+
         return redirect()
-            ->route('qa-board.index')
+            ->route($indexRoute)
             ->with('success', '質問を削除しました。');
     }
 
@@ -132,7 +134,7 @@ class QaThreadController extends Controller
         $action($thread);
 
         return redirect()
-            ->route('qa-board.index')
+            ->route('qa-board.show', $thread)
             ->with('success', '質問の解決状況を「解決済」にしました。');
     }
 
@@ -143,7 +145,7 @@ class QaThreadController extends Controller
         $action($thread);
 
         return redirect()
-            ->route('qa-board.index')
+            ->route('qa-board.show', $thread)
             ->with('success', '質問の解決状況を「未解決」に変更しました。');
     }
 }
