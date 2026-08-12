@@ -101,4 +101,7 @@
             <x-button type="submit" form="part-create-form" variant="primary">作成</x-button>
         </x-slot:footer>
     </x-modal>
+@push('scripts')
+    @vite('resources/js/content-management/reorder.js')
+@endpush
 @endsection

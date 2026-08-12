@@ -176,4 +176,7 @@
             button-variant="secondary"
         />
     @endif
+@push('scripts')
+    @vite('resources/js/content-management/reorder.js')
+@endpush
 @endsection
