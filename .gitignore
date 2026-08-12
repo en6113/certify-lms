@@ -18,3 +18,4 @@ yarn-error.log
 /.idea
 /.vscode
 .tmp-design-compare/
+/docs/private/

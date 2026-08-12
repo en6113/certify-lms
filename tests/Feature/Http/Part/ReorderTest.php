@@ -8,11 +8,12 @@ use App\Models\Certification;
 use App\Models\Part;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\ContentTestHelpers;
 use Tests\TestCase;
 
 class ReorderTest extends TestCase
 {
-    use RefreshDatabase;
+    use ContentTestHelpers, RefreshDatabase;
 
     public function test_reorder_updates_order_columns(): void
     {
@@ -46,5 +47,37 @@ class ReorderTest extends TestCase
                 'ids' => [$a->id, $foreign->id],
             ])
             ->assertStatus(422);
+    }
+
+    public function test_assigned_coach_can_reorder_parts(): void
+    {
+        $coach = User::factory()->coach()->create();
+        $cert = Certification::factory()->published()->create();
+        $this->assignCoach($coach, $cert);
+        $a = Part::factory()->forCertification($cert)->state(['order' => 1])->create();
+        $b = Part::factory()->forCertification($cert)->state(['order' => 2])->create();
+
+        $this->actingAs($coach)
+            ->patch(route('admin.certifications.parts.reorder', $cert), [
+                'ids' => [$b->id, $a->id],
+            ])
+            ->assertRedirect();
+
+        $this->assertSame(1, $b->fresh()->order);
+        $this->assertSame(2, $a->fresh()->order);
+    }
+
+    public function test_non_assigned_coach_cannot_reorder_parts(): void
+    {
+        $coach = User::factory()->coach()->create();
+        $cert = Certification::factory()->published()->create();
+        $a = Part::factory()->forCertification($cert)->state(['order' => 1])->create();
+        $b = Part::factory()->forCertification($cert)->state(['order' => 2])->create();
+
+        $this->actingAs($coach)
+            ->patchJson(route('admin.certifications.parts.reorder', $cert), [
+                'ids' => [$b->id, $a->id],
+            ])
+            ->assertForbidden();
     }
 }
