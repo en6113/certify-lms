@@ -73,6 +73,7 @@ class SectionQuestionPolicyTest extends TestCase
         $coach = User::factory()->coach()->create();
         $admin = User::factory()->admin()->create();
         $assignedCert = Certification::factory()->published()->create();
+        $otherCert = Certification::factory()->published()->create();
         CertificationCoachAssignment::create([
             'id' => (string) Str::ulid(),
             'certification_id' => $assignedCert->id,
@@ -80,15 +81,24 @@ class SectionQuestionPolicyTest extends TestCase
             'assigned_by_user_id' => $admin->id,
             'assigned_at' => now(),
         ]);
-        $assignedQuestion = SectionQuestion::factory()->published()->create([
-            'section_id' => Section::factory()->state(fn () => [
-                'chapter_id' => Chapter::factory()
-                    ->for(Part::factory()->for($assignedCert))
-                    ->create()->id,
-            ]),
-        ]);
+        $assignedSection = Section::factory()
+            ->for(Chapter::factory()->for(Part::factory()->for($assignedCert)))
+            ->create();
+        $assignedQuestion = SectionQuestion::factory()->for($assignedSection)->published()->create();
+        $assignedDraftQuestion = SectionQuestion::factory()->for($assignedSection)->draft()->create();
+
+        $otherSection = Section::factory()
+            ->for(Chapter::factory()->for(Part::factory()->for($otherCert)))
+            ->create();
+        $otherQuestion = SectionQuestion::factory()->for($otherSection)->published()->create();
+
         $policy = new SectionQuestionPolicy;
 
+        $this->assertTrue($policy->viewAny($coach, $assignedSection));
+        $this->assertFalse($policy->viewAny($coach, $otherSection));
+        $this->assertTrue($policy->view($coach, $assignedQuestion));
+        $this->assertTrue($policy->view($coach, $assignedDraftQuestion), '担当資格ならDraft状態でも閲覧可');
+        $this->assertFalse($policy->view($coach, $otherQuestion));
         $this->assertTrue($policy->update($coach, $assignedQuestion));
     }
 }
