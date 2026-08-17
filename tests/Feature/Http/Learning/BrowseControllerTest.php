@@ -97,6 +97,26 @@ class BrowseControllerTest extends TestCase
         $response->assertForbidden();
     }
 
+    public function test_show_chapter_forbidden_for_non_enrolled_student(): void
+    {
+        $student = User::factory()->student()->inProgress()->create();
+        $chapter = Chapter::factory()->create(['status' => ContentStatus::Published->value]);
+
+        $response = $this->actingAs($student)->get(route('learning.chapters.show', $chapter));
+
+        $response->assertForbidden();
+    }
+
+    public function test_show_section_forbidden_for_non_enrolled_student(): void
+    {
+        $student = User::factory()->student()->inProgress()->create();
+        $section = Section::factory()->create(['status' => ContentStatus::Published->value]);
+
+        $response = $this->actingAs($student)->get(route('learning.sections.show', $section));
+
+        $response->assertForbidden();
+    }
+
     public function test_show_chapter_404_when_draft_part(): void
     {
         [$student, $certification] = $this->buildStudentAndCertification();
