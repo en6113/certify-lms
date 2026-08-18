@@ -12,7 +12,7 @@ use Tests\TestCase;
 
 /**
  * MeetingPack モデルのリレーション・Scope・Cast を検証する Unit テスト。
- * 2 リレーション (createdBy / updatedBy) + 2 scope (published / ordered) +
+ * 2 リレーション (createdBy / updatedBy) + 3 scope (published / ordered / keyword) +
  * 4 cast (status enum / meeting_count int / price int / sort_order int) を網羅する。
  * 追加面談 SKU マスタ。
  */
@@ -31,6 +31,19 @@ class MeetingPackTest extends TestCase
 
         // Assert
         $this->assertTrue($creator->is($admin));
+    }
+
+    public function test_updated_by_relation_returns_admin(): void
+    {
+        // Arrange
+        $updater = User::factory()->admin()->create();
+        $pack = MeetingPack::factory()->create(['updated_by_user_id' => $updater->id]);
+
+        // Act
+        $lastUpdater = $pack->updatedBy;
+
+        // Assert
+        $this->assertTrue($lastUpdater->is($updater));
     }
 
     public function test_scope_published_filters_only_published(): void
@@ -58,6 +71,34 @@ class MeetingPackTest extends TestCase
 
         // Assert
         $this->assertTrue($results->first()->is($first));
+    }
+
+    public function test_scope_keyword_filters_by_partial_name_match(): void
+    {
+        // Arrange
+        $matched = MeetingPack::factory()->published()->create(['name' => '追加面談3回パック']);
+        MeetingPack::factory()->published()->create(['name' => '追加面談5回パック']);
+
+        // Act
+        $results = MeetingPack::keyword('3回')->get();
+
+        // Assert
+        $this->assertCount(1, $results);
+        $this->assertTrue($results->first()->is($matched));
+    }
+
+    public function test_scope_keyword_returns_all_when_keyword_is_null_or_empty(): void
+    {
+        // Arrange
+        MeetingPack::factory()->published()->count(2)->create();
+
+        // Act
+        $withNull = MeetingPack::keyword(null)->get();
+        $withEmpty = MeetingPack::keyword('')->get();
+
+        // Assert
+        $this->assertCount(2, $withNull);
+        $this->assertCount(2, $withEmpty);
     }
 
     public function test_status_cast_converts_to_enum(): void
