@@ -13,7 +13,7 @@ use Tests\TestCase;
 
 /**
  * Plan モデルのリレーション・Scope・Cast を検証する Unit テスト。
- * 4 リレーション (createdBy / updatedBy / users / userPlanLogs) + 2 scope (published / ordered) +
+ * 4 リレーション (createdBy / updatedBy / users / userPlanLogs) + 3 scope (published / ordered / keyword) +
  * 4 cast (status enum / duration_days int / default_meeting_quota int / sort_order int) を網羅する。
  * Plan は status による状態管理を採用するため SoftDelete は不採用。
  */
@@ -114,6 +114,34 @@ class PlanTest extends TestCase
         // Assert
         $this->assertTrue($results->first()->is($first), 'sort_order 昇順で先頭は sort_order=1 のはず');
         $this->assertTrue($results->last()->is($third), 'sort_order 昇順で末尾は sort_order=3 のはず');
+    }
+
+    public function test_scope_keyword_filters_by_partial_name_match(): void
+    {
+        // Arrange
+        $matched = Plan::factory()->published()->create(['name' => '3 ヶ月プラン 12 回']);
+        Plan::factory()->published()->create(['name' => '6 ヶ月プラン 24 回']);
+
+        // Act
+        $results = Plan::keyword('3 ヶ月')->get();
+
+        // Assert
+        $this->assertCount(1, $results, 'キーワードに部分一致する plan のみが抽出されるはず');
+        $this->assertTrue($results->first()->is($matched));
+    }
+
+    public function test_scope_keyword_returns_all_when_keyword_is_null_or_empty(): void
+    {
+        // Arrange
+        Plan::factory()->published()->count(2)->create();
+
+        // Act
+        $withNull = Plan::keyword(null)->get();
+        $withEmpty = Plan::keyword('')->get();
+
+        // Assert
+        $this->assertCount(2, $withNull, 'keyword が null の場合は絞り込まれないはず');
+        $this->assertCount(2, $withEmpty, 'keyword が空文字の場合は絞り込まれないはず');
     }
 
     public function test_status_cast_converts_string_to_enum(): void
