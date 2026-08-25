@@ -100,7 +100,7 @@ final class FetchCoachDashboardAction
 
         return QaThread::query()
             ->whereIn('certification_id', $certificationIds)
-            ->where('status', QaThreadStatus::UnResolved)
+            ->where('status', QaThreadStatus::Open)
             ->whereDoesntHave('replies')
             ->count();
     }
@@ -121,7 +121,7 @@ final class FetchCoachDashboardAction
 
         return QaThread::query()
             ->whereIn('certification_id', $certificationIds)
-            ->where('status', QaThreadStatus::UnResolved)
+            ->where('status', QaThreadStatus::Open)
             ->whereDoesntHave('replies')
             ->with(['user', 'certification'])
             ->latest()

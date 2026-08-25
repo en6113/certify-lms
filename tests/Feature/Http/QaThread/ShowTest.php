@@ -57,6 +57,15 @@ class ShowTest extends TestCase
         $this->actingAs($admin)->get(route('admin.qa-board.show', $thread))->assertOk();
     }
 
+    public function test_student_forbidden_from_unpublished_certification_thread(): void
+    {
+        $student = User::factory()->student()->inProgress()->create();
+        $draftCert = Certification::factory()->draft()->create();
+        $thread = QaThread::factory()->for($draftCert)->create();
+
+        $this->actingAs($student)->get(route('qa-board.show', $thread))->assertForbidden();
+    }
+
     public function test_replies_are_ordered_oldest_first(): void
     {
         $student = User::factory()->student()->inProgress()->create();

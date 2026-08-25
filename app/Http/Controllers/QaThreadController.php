@@ -118,7 +118,7 @@ class QaThreadController extends Controller
     {
         $this->authorize('delete', $thread);
 
-        $action($thread);
+        $action($thread, request()->user());
 
         $indexRoute = request()->routeIs('admin.*') ? 'admin.qa-board.index' : 'qa-board.index';
 

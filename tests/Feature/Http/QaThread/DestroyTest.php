@@ -56,4 +56,17 @@ class DestroyTest extends TestCase
         $response->assertStatus(409);
         $this->assertDatabaseHas('qa_threads', ['id' => $thread->id]);
     }
+
+    public function test_admin_can_delete_thread_with_replies(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $thread = QaThread::factory()->create();
+        $reply = QaReply::factory()->create(['qa_thread_id' => $thread->id]);
+
+        $response = $this->actingAs($admin)->delete(route('admin.qa-board.destroy', $thread));
+
+        $response->assertRedirect(route('admin.qa-board.index'));
+        $this->assertDatabaseMissing('qa_threads', ['id' => $thread->id]);
+        $this->assertDatabaseMissing('qa_replies', ['id' => $reply->id]);
+    }
 }

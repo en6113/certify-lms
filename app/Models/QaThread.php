@@ -91,7 +91,8 @@ class QaThread extends Model
         }
 
         return $query->where(function ($q) use ($keyword) {
-            $q->where('body', 'LIKE', '%'.$keyword.'%');
+            $q->where('title', 'LIKE', '%'.$keyword.'%')
+                ->orWhere('body', 'LIKE', '%'.$keyword.'%');
         });
     }
 

@@ -2,7 +2,7 @@
 @php
     $segments = [
         '' => 'すべて',
-        'unresolved' => '未解決',
+        'open' => '未解決',
         'resolved' => '解決済',
     ];
     $currentStatus = $filters['status'] ?? '';

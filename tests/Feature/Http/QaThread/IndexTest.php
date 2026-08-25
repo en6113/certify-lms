@@ -95,7 +95,7 @@ class IndexTest extends TestCase
         $student = User::factory()->student()->inProgress()->create();
         $cert = Certification::factory()->published()->create();
         QaThread::factory()->for($cert)->create(['title' => '解決済の質問', 'status' => QaThreadStatus::Resolved->value]);
-        QaThread::factory()->for($cert)->create(['title' => '未解決の質問', 'status' => QaThreadStatus::UnResolved->value]);
+        QaThread::factory()->for($cert)->create(['title' => '未解決の質問', 'status' => QaThreadStatus::Open->value]);
 
         $response = $this->actingAs($student)->get(route('qa-board.index', ['status' => QaThreadStatus::Resolved->value]));
 
@@ -115,6 +115,20 @@ class IndexTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('質問A');
+        $response->assertDontSee('質問B');
+    }
+
+    public function test_keyword_filter_matches_title(): void
+    {
+        $student = User::factory()->student()->inProgress()->create();
+        $cert = Certification::factory()->published()->create();
+        QaThread::factory()->for($cert)->create(['title' => 'サブネットマスクについて', 'body' => '計算方法が分かりません']);
+        QaThread::factory()->for($cert)->create(['title' => '質問B', 'body' => 'IAMロールの権限設定について']);
+
+        $response = $this->actingAs($student)->get(route('qa-board.index', ['keyword' => 'サブネット']));
+
+        $response->assertOk();
+        $response->assertSee('サブネットマスクについて');
         $response->assertDontSee('質問B');
     }
 

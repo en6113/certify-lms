@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Enums\QaThreadStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -23,7 +24,7 @@ return new class extends Migration
                 ->cascadeOnDelete();
             $table->string('title', 200);
             $table->text('body', 5000);
-            $table->string('status', 20)->default('unresolved');
+            $table->string('status', 20)->default(QaThreadStatus::Open);
             $table->timestamp('resolved_at')->nullable();
             $table->timestamps();
 

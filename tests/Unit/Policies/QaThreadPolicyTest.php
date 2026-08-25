@@ -78,6 +78,20 @@ class QaThreadPolicyTest extends TestCase
         $this->assertFalse($policy->view($unassignedCoach, $thread->fresh()));
     }
 
+    public function test_view_denied_when_certification_is_not_published(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $student = User::factory()->student()->inProgress()->create();
+        $coach = User::factory()->coach()->create();
+        $draftCert = Certification::factory()->draft()->create();
+        $this->attachCoach($draftCert, $coach, $admin);
+        $thread = QaThread::factory()->for($draftCert)->create();
+
+        $policy = new QaThreadPolicy;
+        $this->assertFalse($policy->view($student, $thread->fresh()), '受講中の受講生でも非公開資格のスレッドは見えない');
+        $this->assertFalse($policy->view($coach, $thread->fresh()), '担当コーチでも非公開資格のスレッドは見えない');
+    }
+
     public function test_create_allowed_only_for_in_progress_student(): void
     {
         $policy = new QaThreadPolicy;

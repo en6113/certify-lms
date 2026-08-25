@@ -24,14 +24,14 @@ class UnresolveActionTest extends TestCase
 
         $result = (new UnresolveAction)($thread);
 
-        $this->assertSame(QaThreadStatus::UnResolved, $result->status);
+        $this->assertSame(QaThreadStatus::Open, $result->status);
         $this->assertNull($result->resolved_at);
     }
 
     public function test_throws_when_already_unresolved(): void
     {
         $thread = QaThread::factory()->create([
-            'status' => QaThreadStatus::UnResolved->value,
+            'status' => QaThreadStatus::Open->value,
             'resolved_at' => null,
         ]);
 

@@ -18,7 +18,7 @@ class ResolveActionTest extends TestCase
     public function test_resolves_unresolved_thread(): void
     {
         $thread = QaThread::factory()->create([
-            'status' => QaThreadStatus::UnResolved->value,
+            'status' => QaThreadStatus::Open->value,
             'resolved_at' => null,
         ]);
 

@@ -25,7 +25,7 @@ class UnresolveTest extends TestCase
         $response = $this->actingAs($owner)->post(route('qa-board.unresolve', $thread));
 
         $response->assertRedirect(route('qa-board.show', $thread));
-        $this->assertSame(QaThreadStatus::UnResolved, $thread->fresh()->status);
+        $this->assertSame(QaThreadStatus::Open, $thread->fresh()->status);
     }
 
     public function test_other_student_cannot_unresolve(): void
@@ -44,7 +44,7 @@ class UnresolveTest extends TestCase
     {
         $owner = User::factory()->student()->inProgress()->create();
         $thread = QaThread::factory()->for($owner)->create([
-            'status' => QaThreadStatus::UnResolved->value,
+            'status' => QaThreadStatus::Open->value,
             'resolved_at' => null,
         ]);
 

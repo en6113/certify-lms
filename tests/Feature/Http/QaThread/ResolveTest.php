@@ -17,7 +17,7 @@ class ResolveTest extends TestCase
     public function test_owner_can_resolve_thread(): void
     {
         $owner = User::factory()->student()->inProgress()->create();
-        $thread = QaThread::factory()->for($owner)->create(['status' => QaThreadStatus::UnResolved->value]);
+        $thread = QaThread::factory()->for($owner)->create(['status' => QaThreadStatus::Open->value]);
 
         $response = $this->actingAs($owner)->post(route('qa-board.resolve', $thread));
 
@@ -29,7 +29,7 @@ class ResolveTest extends TestCase
     {
         $owner = User::factory()->student()->inProgress()->create();
         $other = User::factory()->student()->inProgress()->create();
-        $thread = QaThread::factory()->for($owner)->create(['status' => QaThreadStatus::UnResolved->value]);
+        $thread = QaThread::factory()->for($owner)->create(['status' => QaThreadStatus::Open->value]);
 
         $this->actingAs($other)->post(route('qa-board.resolve', $thread))->assertForbidden();
     }

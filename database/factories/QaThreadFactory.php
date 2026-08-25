@@ -27,7 +27,7 @@ class QaThreadFactory extends Factory
             'certification_id' => Certification::factory()->published(),
             'title' => fake()->realText(50),
             'body' => fake()->realText(250),
-            'status' => QaThreadStatus::UnResolved->value,
+            'status' => QaThreadStatus::Open->value,
             'resolved_at' => null,
         ];
     }

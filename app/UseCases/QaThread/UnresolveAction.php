@@ -20,12 +20,12 @@ final class UnresolveAction
      */
     public function __invoke(QaThread $thread): QaThread
     {
-        if ($thread->status === QaThreadStatus::UnResolved) {
+        if ($thread->status === QaThreadStatus::Open) {
             throw QaThreadInvalidStatusTransitionException::forUnresolve();
         }
 
         $thread->update([
-            'status' => QaThreadStatus::UnResolved,
+            'status' => QaThreadStatus::Open,
             'resolved_at' => null,
         ]);
 

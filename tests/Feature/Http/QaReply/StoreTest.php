@@ -33,6 +33,19 @@ class StoreTest extends TestCase
         ]);
     }
 
+    public function test_student_cannot_post_reply_to_unpublished_certification_thread(): void
+    {
+        $student = User::factory()->student()->inProgress()->create();
+        $draftCert = Certification::factory()->draft()->create();
+        $thread = QaThread::factory()->for($draftCert)->create();
+
+        $response = $this->actingAs($student)->post(route('qa-board.replies.store', $thread), [
+            'body' => '回答',
+        ]);
+
+        $response->assertForbidden();
+    }
+
     public function test_assigned_coach_can_post_reply(): void
     {
         $admin = User::factory()->admin()->create();

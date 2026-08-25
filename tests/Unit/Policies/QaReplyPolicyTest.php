@@ -62,6 +62,20 @@ class QaReplyPolicyTest extends TestCase
         $this->assertFalse($policy->view($unassignedCoach, $thread->fresh()));
     }
 
+    public function test_view_denied_when_certification_is_not_published(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $student = User::factory()->student()->inProgress()->create();
+        $coach = User::factory()->coach()->create();
+        $draftCert = Certification::factory()->draft()->create();
+        $this->attachCoach($draftCert, $coach, $admin);
+        $thread = QaThread::factory()->for($draftCert)->create();
+
+        $policy = new QaReplyPolicy;
+        $this->assertFalse($policy->view($student, $thread->fresh()));
+        $this->assertFalse($policy->view($coach, $thread->fresh()));
+    }
+
     public function test_create_allowed_for_in_progress_student_and_assigned_coach(): void
     {
         $admin = User::factory()->admin()->create();
@@ -87,6 +101,20 @@ class QaReplyPolicyTest extends TestCase
         $this->assertFalse($policy->create($graduated, $thread));
         $this->assertFalse($policy->create($unassignedCoach, $thread->fresh()));
         $this->assertFalse($policy->create($admin, $thread));
+    }
+
+    public function test_create_denied_when_certification_is_not_published(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $student = User::factory()->student()->inProgress()->create();
+        $coach = User::factory()->coach()->create();
+        $draftCert = Certification::factory()->draft()->create();
+        $this->attachCoach($draftCert, $coach, $admin);
+        $thread = QaThread::factory()->for($draftCert)->create();
+
+        $policy = new QaReplyPolicy;
+        $this->assertFalse($policy->create($student, $thread->fresh()));
+        $this->assertFalse($policy->create($coach, $thread->fresh()));
     }
 
     public function test_update_allowed_only_for_reply_author(): void
