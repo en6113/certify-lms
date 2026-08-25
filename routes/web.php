@@ -26,6 +26,8 @@ use App\Http\Controllers\MockExamQuestionController;
 use App\Http\Controllers\MockExamSessionController;
 use App\Http\Controllers\MockExamSessionMonitorController;
 use App\Http\Controllers\PartController;
+use App\Http\Controllers\QaReplyController;
+use App\Http\Controllers\QaThreadController;
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\QuestionCategoryController;
 use App\Http\Controllers\QuizHistoryController;
@@ -498,6 +500,49 @@ Route::middleware(['auth', 'role:coach'])
 Route::middleware(['auth', 'role:student', 'active-learning'])->prefix('meeting-quota')->name('meeting-quota.')->group(function () {
     // 面談回数履歴
     Route::get('history', [MeetingQuotaHistoryController::class, 'index'])->name('history');
+});
+
+// ============================================================
+// 受講生専用ルート - 質問掲示板（投稿 / 編集 / 削除 / ステータス変更）
+// ============================================================
+Route::middleware(['auth', 'role:student', 'active-learning'])->prefix('qa-board')->name('qa-board.')->group(function () {
+    // 質問スレッドの投稿・編集・削除・status（解決済/未解決）切り替え
+    Route::get('create', [QaThreadController::class, 'create'])->name('create');
+    Route::post('/', [QaThreadController::class, 'store'])->name('store');
+    Route::get('{thread}/edit', [QaThreadController::class, 'edit'])->name('edit');
+    Route::patch('{thread}', [QaThreadController::class, 'update'])->name('update');
+    Route::delete('{thread}', [QaThreadController::class, 'destroy'])->name('destroy');
+    Route::post('{thread}/resolve', [QaThreadController::class, 'resolve'])->name('resolve');
+    Route::post('{thread}/unresolve', [QaThreadController::class, 'unresolve'])->name('unresolve');
+});
+
+// ============================================================
+// 受講生・コーチ共有 — 質問掲示板（一覧・詳細表示 / 質問回答）
+// ============================================================
+Route::middleware(['auth', 'role:student,coach', 'active-learning'])->group(function () {
+    // 一覧・詳細表示(student=公開中資格のスレッドのみ / coach=担当資格のみ)。
+    Route::prefix('qa-board')->name('qa-board.')->group(function () {
+        Route::get('/', [QaThreadController::class, 'index'])->name('index');
+        Route::get('{thread}', [QaThreadController::class, 'show'])->name('show');
+    });
+    // 質問回答
+    Route::prefix('qa-board/{thread}/replies')->name('qa-board.replies.')->group(function () {
+        Route::post('/', [QaReplyController::class, 'store'])->name('store');
+        Route::get('{reply}/edit', [QaReplyController::class, 'edit'])->name('edit');
+        Route::patch('{reply}', [QaReplyController::class, 'update'])->name('update');
+        Route::delete('{reply}', [QaReplyController::class, 'destroy'])->name('destroy');
+    });
+});
+
+// ============================================================
+// 管理者専用 — 質問掲示板（閲覧 / 削除）
+// ============================================================
+Route::middleware(['auth', 'role:admin'])->prefix('admin/qa-board')->name('admin.qa-board.')->group(function () {
+    // 一覧・詳細表示(admin=公開停止中の資格を含めた全ての資格のスレッド)。
+    Route::get('/', [QaThreadController::class, 'index'])->name('index');
+    Route::get('{thread}', [QaThreadController::class, 'show'])->name('show');
+    Route::delete('{thread}', [QaThreadController::class, 'destroy'])->name('destroy');
+    Route::delete('{thread}/replies/{reply}', [QaReplyController::class, 'destroy'])->name('replies.destroy');
 });
 
 // ============================================================
