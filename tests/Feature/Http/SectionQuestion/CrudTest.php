@@ -44,6 +44,26 @@ class CrudTest extends TestCase
         $this->assertSame(1, $question->options()->where('is_correct', true)->count());
     }
 
+    public function test_assigned_coach_can_create_section_question(): void
+    {
+        $coach = User::factory()->coach()->create();
+        $cert = Certification::factory()->published()->create();
+        $this->assignCoach($coach, $cert);
+        [, , $section] = $this->makePartChain($cert);
+        $category = $this->makeCategory($cert);
+
+        $this->actingAs($coach)
+            ->post(route('admin.sections.questions.store', $section), [
+                'body' => 'Q?',
+                'category_id' => $category->id,
+                'options' => [
+                    ['body' => 'A', 'is_correct' => true, 'order' => 0],
+                    ['body' => 'B', 'is_correct' => false, 'order' => 1],
+                ],
+            ])
+            ->assertRedirect();
+    }
+
     public function test_store_rejects_zero_correct_options(): void
     {
         $admin = User::factory()->admin()->create();

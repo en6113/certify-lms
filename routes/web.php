@@ -17,6 +17,7 @@ use App\Http\Controllers\EnrollmentManagementController;
 use App\Http\Controllers\InvitationController;
 use App\Http\Controllers\LearningHourTargetController;
 use App\Http\Controllers\MeetingController;
+use App\Http\Controllers\MeetingPackController;
 use App\Http\Controllers\MeetingQuotaHistoryController;
 use App\Http\Controllers\MockExamAnswerController;
 use App\Http\Controllers\MockExamCatalogController;
@@ -27,6 +28,7 @@ use App\Http\Controllers\MockExamSessionMonitorController;
 use App\Http\Controllers\PartController;
 use App\Http\Controllers\QaReplyController;
 use App\Http\Controllers\QaThreadController;
+use App\Http\Controllers\PlanController;
 use App\Http\Controllers\QuestionCategoryController;
 use App\Http\Controllers\QuizHistoryController;
 use App\Http\Controllers\QuizStatsController;
@@ -39,6 +41,9 @@ use App\Http\Controllers\SectionQuestionController;
 use App\Http\Controllers\SectionQuizController;
 use App\Http\Controllers\SectionQuizResultController;
 use App\Http\Controllers\Settings\AvailabilityController as SettingsAvailabilityController;
+use App\Http\Controllers\Settings\AvatarController;
+use App\Http\Controllers\Settings\PasswordController;
+use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\SettingsDefaultEnrollmentController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WeakDrillController;
@@ -75,6 +80,15 @@ Route::middleware('auth')->group(function () {
     Route::get('enrollments/{enrollment}', [EnrollmentController::class, 'show'])
         ->withTrashed()
         ->name('enrollments.show');
+
+    // 設定画面(プロフィール / パスワード / アバター) — 全ロール共通、修了済でも利用可
+    Route::prefix('settings')->name('settings.')->group(function () {
+        Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::post('avatar', [AvatarController::class, 'store'])->name('avatar.store');
+        Route::delete('avatar', [AvatarController::class, 'destroy'])->name('avatar.destroy');
+        Route::put('password', [PasswordController::class, 'update'])->name('password.update');
+    });
 });
 
 // ============================================================
@@ -194,6 +208,26 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
         ->name('admin.enrollments.updateExamDate');
     Route::post('enrollments/{enrollment}/fail', [EnrollmentManagementController::class, 'fail'])
         ->name('admin.enrollments.fail');
+
+    // 面談パック管理(追加面談購入用 SKU の CRUD + 公開状態遷移、admin のみ)
+    Route::resource('meeting-packs', MeetingPackController::class)
+        ->parameters(['meeting-packs' => 'plan'])
+        ->names('admin.meeting-packs');
+    Route::post('meeting-packs/{plan}/publish', [MeetingPackController::class, 'publish'])
+        ->name('admin.meeting-packs.publish');
+    Route::post('meeting-packs/{plan}/archive', [MeetingPackController::class, 'archive'])
+        ->name('admin.meeting-packs.archive');
+    Route::post('meeting-packs/{plan}/unarchive', [MeetingPackController::class, 'unarchive'])
+        ->name('admin.meeting-packs.unarchive');
+
+    // 受講プラン管理(受講プラン の CRUD + 公開状態遷移、admin のみ)
+    Route::resource('plans', PlanController::class)->names('admin.plans');
+    Route::post('plans/{plan}/publish', [PlanController::class, 'publish'])
+        ->name('admin.plans.publish');
+    Route::post('plans/{plan}/archive', [PlanController::class, 'archive'])
+        ->name('admin.plans.archive');
+    Route::post('plans/{plan}/unarchive', [PlanController::class, 'unarchive'])
+        ->name('admin.plans.unarchive');
 });
 
 // ============================================================

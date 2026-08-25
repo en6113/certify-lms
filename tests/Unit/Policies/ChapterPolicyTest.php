@@ -54,9 +54,15 @@ class ChapterPolicyTest extends TestCase
         $assignedPart = Part::factory()->for($assignedCert)->published()->create();
         $otherPart = Part::factory()->for($otherCert)->published()->create();
         $assignedChapter = Chapter::factory()->for($assignedPart)->published()->create();
+        $assignedDraftChapter = Chapter::factory()->for($assignedPart)->draft()->create();
         $otherChapter = Chapter::factory()->for($otherPart)->published()->create();
         $policy = new ChapterPolicy;
 
+        $this->assertTrue($policy->viewAny($coach, $assignedPart));
+        $this->assertFalse($policy->viewAny($coach, $otherPart));
+        $this->assertTrue($policy->view($coach, $assignedChapter));
+        $this->assertTrue($policy->view($coach, $assignedDraftChapter), '担当資格ならDraft状態でも閲覧可');
+        $this->assertFalse($policy->view($coach, $otherChapter));
         $this->assertTrue($policy->update($coach, $assignedChapter));
         $this->assertFalse($policy->update($coach, $otherChapter));
     }

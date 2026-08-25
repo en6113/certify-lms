@@ -45,6 +45,24 @@ class StoreTest extends TestCase
             ->assertSessionHasErrors('title');
     }
 
+    public function test_assigned_coach_can_create_part(): void
+    {
+        $coach = User::factory()->coach()->create();
+        $cert = Certification::factory()->published()->create();
+        $this->assignCoach($coach, $cert);
+
+        $this->actingAs($coach)
+            ->post(route('admin.certifications.parts.store', $cert), [
+                'title' => '第2部 ネットワーク',
+            ])
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('parts', [
+            'certification_id' => $cert->id,
+            'title' => '第2部 ネットワーク',
+        ]);
+    }
+
     public function test_non_assigned_coach_cannot_create(): void
     {
         $coach = User::factory()->coach()->create();

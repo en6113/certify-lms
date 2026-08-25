@@ -42,6 +42,36 @@ class StoreTest extends TestCase
         Storage::disk('public')->assertExists($path);
     }
 
+    public function test_assigned_coach_can_upload_image(): void
+    {
+        Storage::fake('public');
+
+        $coach = User::factory()->coach()->create();
+        $cert = Certification::factory()->published()->create();
+        $this->assignCoach($coach, $cert);
+        [$part, $chapter, $section] = $this->makePartChain($cert, 'draft');
+
+        $file = UploadedFile::fake()->image('cover.png', 800, 600);
+
+        $this->actingAs($coach)
+            ->postJson(route('admin.sections.images.store', $section), ['file' => $file])
+            ->assertCreated();
+    }
+
+    public function test_non_assigned_coach_cannot_upload_image(): void
+    {
+        Storage::fake('public');
+
+        $coach = User::factory()->coach()->create();
+        [$part, $chapter, $section] = $this->makePartChain(Certification::factory()->published()->create(), 'draft');
+
+        $file = UploadedFile::fake()->image('cover.png', 800, 600);
+
+        $this->actingAs($coach)
+            ->postJson(route('admin.sections.images.store', $section), ['file' => $file])
+            ->assertForbidden();
+    }
+
     public function test_rejects_oversized_file(): void
     {
         Storage::fake('public');

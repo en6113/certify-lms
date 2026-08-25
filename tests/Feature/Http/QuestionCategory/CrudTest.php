@@ -35,6 +35,25 @@ class CrudTest extends TestCase
         ]);
     }
 
+    public function test_assigned_coach_can_create_question_category(): void
+    {
+        $coach = User::factory()->coach()->create();
+        $cert = Certification::factory()->published()->create();
+        $this->assignCoach($coach, $cert);
+
+        $this->actingAs($coach)
+            ->post(route('admin.certifications.question-categories.store', $cert), [
+                'name' => 'テクノロジー系',
+                'slug' => 'technology',
+            ])
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('question_categories', [
+            'certification_id' => $cert->id,
+            'slug' => 'technology',
+        ]);
+    }
+
     public function test_duplicate_slug_within_certification_rejected(): void
     {
         $admin = User::factory()->admin()->create();

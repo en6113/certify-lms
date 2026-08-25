@@ -48,9 +48,15 @@ class PartPolicyTest extends TestCase
             'assigned_at' => now(),
         ]);
         $assignedPart = Part::factory()->for($assignedCert)->published()->create();
+        $assignedDraftPart = Part::factory()->for($assignedCert)->draft()->create();
         $otherPart = Part::factory()->for($otherCert)->published()->create();
         $policy = new PartPolicy;
 
+        $this->assertTrue($policy->viewAny($coach, $assignedCert));
+        $this->assertFalse($policy->viewAny($coach, $otherCert));
+        $this->assertTrue($policy->view($coach, $assignedPart));
+        $this->assertTrue($policy->view($coach, $assignedDraftPart), '担当資格ならDraft状態でも閲覧可');
+        $this->assertFalse($policy->view($coach, $otherPart));
         $this->assertTrue($policy->update($coach, $assignedPart));
         $this->assertFalse($policy->update($coach, $otherPart));
     }

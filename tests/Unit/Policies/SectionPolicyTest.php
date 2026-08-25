@@ -56,6 +56,7 @@ class SectionPolicyTest extends TestCase
         $coach = User::factory()->coach()->create();
         $admin = User::factory()->admin()->create();
         $assignedCert = Certification::factory()->published()->create();
+        $otherCert = Certification::factory()->published()->create();
         CertificationCoachAssignment::create([
             'id' => (string) Str::ulid(),
             'certification_id' => $assignedCert->id,
@@ -66,8 +67,19 @@ class SectionPolicyTest extends TestCase
         $part = Part::factory()->for($assignedCert)->published()->create();
         $chapter = Chapter::factory()->for($part)->published()->create();
         $section = Section::factory()->for($chapter)->published()->create();
+        $draftSection = Section::factory()->for($chapter)->draft()->create();
+
+        $otherPart = Part::factory()->for($otherCert)->published()->create();
+        $otherChapter = Chapter::factory()->for($otherPart)->published()->create();
+        $otherSection = Section::factory()->for($otherChapter)->published()->create();
+
         $policy = new SectionPolicy;
 
+        $this->assertTrue($policy->viewAny($coach, $chapter));
+        $this->assertFalse($policy->viewAny($coach, $otherChapter));
+        $this->assertTrue($policy->view($coach, $section));
+        $this->assertTrue($policy->view($coach, $draftSection), '担当資格ならDraft状態でも閲覧可');
+        $this->assertFalse($policy->view($coach, $otherSection));
         $this->assertTrue($policy->update($coach, $section));
         $this->assertTrue($policy->preview($coach, $section));
     }

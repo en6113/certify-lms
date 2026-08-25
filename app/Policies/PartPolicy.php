@@ -14,7 +14,7 @@ use App\Models\User;
  * Part の認可ポリシー。
  *
  * - admin: 全資格配下を CRUD 可
- * - coach: 担当資格(certification_coach_assignments)配下のみ CRUD 可
+ * - coach: 担当資格(certification_coach_assignments)配下のみ CRUD 可(公開状態を問わず閲覧・管理可)
  * - student: Published 状態のみ閲覧可
  */
 class PartPolicy
@@ -23,7 +23,7 @@ class PartPolicy
     {
         return match ($auth->role) {
             UserRole::Admin => true,
-            UserRole::Coach => false,
+            UserRole::Coach => $this->assignedCoach($auth, $certification),
             default => false,
         };
     }
@@ -32,7 +32,7 @@ class PartPolicy
     {
         return match ($auth->role) {
             UserRole::Admin => true,
-            UserRole::Coach => false,
+            UserRole::Coach => $this->assignedCoach($auth, $part->certification),
             default => $part->status === ContentStatus::Published,
         };
     }
@@ -71,7 +71,7 @@ class PartPolicy
     {
         return match ($auth->role) {
             UserRole::Admin => true,
-            UserRole::Coach => false,
+            UserRole::Coach => $this->assignedCoach($auth, $certification),
             default => false,
         };
     }
