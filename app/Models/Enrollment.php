@@ -136,6 +136,14 @@ class Enrollment extends Model
     }
 
     /**
+     * @return HasMany<EnrollmentNote, $this>
+     */
+    public function notes(): HasMany
+    {
+        return $this->hasMany(EnrollmentNote::class);
+    }
+
+    /**
      * @return HasOne<LearningHourTarget, $this>
      */
     public function learningHourTarget(): HasOne

@@ -12,6 +12,7 @@ use App\Enums\UserStatus;
 use App\Models\Certificate;
 use App\Models\Certification;
 use App\Models\Enrollment;
+use App\Models\EnrollmentNote;
 use App\Models\EnrollmentStatusLog;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
@@ -129,6 +130,9 @@ final class EnrollmentSeeder extends Seeder
     {
         $targets = $publishedCerts->take(4);
 
+        $coach1 = User::query()->where('email', 'coach@certify-lms.test')->first();
+        $coach2 = User::query()->where('email', 'coach2@certify-lms.test')->first();
+
         foreach ($targets as $index => $certification) {
             $enrollment = Enrollment::firstOrCreate(
                 [
@@ -152,6 +156,8 @@ final class EnrollmentSeeder extends Seeder
                     'changed_reason' => '新規登録',
                 ],
             );
+
+            $this->seedFixedStudentEnrollmentNotes($enrollment, $index, $coach1, $coach2, $admin);
         }
     }
 
@@ -205,6 +211,8 @@ final class EnrollmentSeeder extends Seeder
             if ($pattern['state'] === 'passed') {
                 $this->issueCertificate($enrollment, $passedAt);
             }
+
+            $this->seedDemoEnrollmentNote($enrollment, $certification, $i);
         }
     }
 
@@ -255,5 +263,62 @@ final class EnrollmentSeeder extends Seeder
             ->create([
                 'issued_at' => $passedAt ?? now(),
             ]);
+    }
+
+    /**
+     * 固定 student の受講登録にコーチメモを投入する(他コーチ越境拒否シナリオ用)。
+     *
+     * CertificationSeeder::assignCoaches() の割当(基本情報/応用情報=coach1、TOEIC=coach1+coach2、日商簿記=coach2)
+     * に対応させ、TOEIC(index=2)だけ自分 / 他コーチ / 管理者のメモが混在する状態を作る。
+     */
+    private function seedFixedStudentEnrollmentNotes(Enrollment $enrollment, int $index, ?User $coach1, ?User $coach2, ?User $admin): void
+    {
+        $notes = match ($index) {
+            0 => [[$coach1, '基礎学習タームの進捗は順調です。演習問題の正答率も高い水準を維持しています。']],
+            1 => [[$coach1, '論述形式の対策を優先するよう伝えました。次回面談で記述練習の状況を確認します。']],
+            2 => [
+                [$coach1, 'TOEICのリスニング演習で伸び悩みが見られます。次回面談でリスニング教材の見直しを提案したいです。'],
+                [$coach2, '文法セクションの正答率は安定してきました。引き続き様子を見ます。'],
+                [$admin, '複数コーチ体制の資格のため、進捗共有を兼ねて閲覧しました。'],
+            ],
+            3 => [[$coach2, '工業簿記の理解に苦戦している様子です。関連セクションの復習を勧めました。']],
+            default => [],
+        };
+
+        foreach ($notes as $i => [$author, $body]) {
+            if ($author === null) {
+                continue;
+            }
+
+            EnrollmentNote::factory()
+                ->forEnrollment($enrollment)
+                ->forAuthor($author)
+                ->create([
+                    'body' => $body,
+                    'created_at' => now()->subMinutes(count($notes) - $i),
+                ]);
+        }
+    }
+
+    /**
+     * 担当コーチが割り当てられている資格の Enrollment にコーチメモを散らす(coach 動線の即時確認用)。
+     * 偶数番目のみに絞り、メモが無い受講登録も意図的に残す（メモがない状態の確認用）。
+     */
+    private function seedDemoEnrollmentNote(Enrollment $enrollment, Certification $certification, int $index): void
+    {
+        if ($index % 2 !== 0) {
+            return;
+        }
+
+        $coach = $certification->coaches()->first();
+
+        if ($coach === null) {
+            return;
+        }
+
+        EnrollmentNote::factory()
+            ->forEnrollment($enrollment)
+            ->forAuthor($coach)
+            ->create();
     }
 }

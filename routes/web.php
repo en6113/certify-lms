@@ -14,6 +14,7 @@ use App\Http\Controllers\ContentSearchController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\EnrollmentManagementController;
+use App\Http\Controllers\EnrollmentNoteController;
 use App\Http\Controllers\InvitationController;
 use App\Http\Controllers\LearningHourTargetController;
 use App\Http\Controllers\MeetingController;
@@ -26,9 +27,9 @@ use App\Http\Controllers\MockExamQuestionController;
 use App\Http\Controllers\MockExamSessionController;
 use App\Http\Controllers\MockExamSessionMonitorController;
 use App\Http\Controllers\PartController;
+use App\Http\Controllers\PlanController;
 use App\Http\Controllers\QaReplyController;
 use App\Http\Controllers\QaThreadController;
-use App\Http\Controllers\PlanController;
 use App\Http\Controllers\QuestionCategoryController;
 use App\Http\Controllers\QuizHistoryController;
 use App\Http\Controllers\QuizStatsController;
@@ -479,6 +480,20 @@ Route::middleware(['auth', 'role:coach'])->prefix('coach')->name('coach.')->grou
     // 面談管理
     Route::get('meetings', [MeetingController::class, 'indexAsCoach'])->name('meetings.index');
     Route::put('meetings/{meeting}/memo', [MeetingController::class, 'upsertMemo'])->name('meetings.memo');
+});
+
+// ============================================================
+// コーチ + 管理者共有ルート — 受講生メモ
+// ============================================================
+Route::middleware(['auth', 'role:admin,coach'])->group(function () {
+    Route::post('enrollments/{enrollment}/notes', [EnrollmentNoteController::class, 'store'])
+        ->name('enrollments.notes.store');
+    Route::get('enrollment-notes/{note}/edit', [EnrollmentNoteController::class, 'edit'])
+        ->name('enrollment-notes.edit');
+    Route::patch('enrollment-notes/{note}', [EnrollmentNoteController::class, 'update'])
+        ->name('enrollment-notes.update');
+    Route::delete('enrollment-notes/{note}', [EnrollmentNoteController::class, 'destroy'])
+        ->name('enrollment-notes.destroy');
 });
 
 // ============================================================

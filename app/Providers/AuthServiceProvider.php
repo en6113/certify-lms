@@ -10,6 +10,7 @@ use App\Models\Chapter;
 use App\Models\ChatRoom;
 use App\Models\CoachAvailability;
 use App\Models\Enrollment;
+use App\Models\EnrollmentNote;
 use App\Models\Invitation;
 use App\Models\LearningHourTarget;
 use App\Models\LearningSession;
@@ -19,6 +20,9 @@ use App\Models\MockExam;
 use App\Models\MockExamQuestion;
 use App\Models\MockExamSession;
 use App\Models\Part;
+use App\Models\Plan;
+use App\Models\QaReply;
+use App\Models\QaThread;
 use App\Models\QuestionCategory;
 use App\Models\Section;
 use App\Models\SectionImage;
@@ -33,6 +37,7 @@ use App\Policies\ChapterPolicy;
 use App\Policies\ChapterViewPolicy;
 use App\Policies\ChatRoomPolicy;
 use App\Policies\CoachAvailabilityPolicy;
+use App\Policies\EnrollmentNotePolicy;
 use App\Policies\EnrollmentPolicy;
 use App\Policies\InvitationPolicy;
 use App\Policies\LearningHourTargetPolicy;
@@ -45,6 +50,9 @@ use App\Policies\MockExamQuestionPolicy;
 use App\Policies\MockExamSessionPolicy;
 use App\Policies\PartPolicy;
 use App\Policies\PartViewPolicy;
+use App\Policies\PlanPolicy;
+use App\Policies\QaReplyPolicy;
+use App\Policies\QaThreadPolicy;
 use App\Policies\QuestionCategoryPolicy;
 use App\Policies\SectionImagePolicy;
 use App\Policies\SectionPolicy;
@@ -82,6 +90,7 @@ class AuthServiceProvider extends ServiceProvider
         MockExamQuestion::class => MockExamQuestionPolicy::class,
         MockExamSession::class => MockExamSessionPolicy::class,
         Enrollment::class => EnrollmentPolicy::class,
+        EnrollmentNote::class => EnrollmentNotePolicy::class,
         SectionProgress::class => SectionProgressPolicy::class,
         LearningSession::class => LearningSessionPolicy::class,
         LearningHourTarget::class => LearningHourTargetPolicy::class,
@@ -90,6 +99,9 @@ class AuthServiceProvider extends ServiceProvider
         Meeting::class => MeetingPolicy::class,
         MeetingPack::class => MeetingPackPolicy::class,
         CoachAvailability::class => CoachAvailabilityPolicy::class,
+        QaThread::class => QaThreadPolicy::class,
+        QaReply::class => QaReplyPolicy::class,
+        Plan::class => PlanPolicy::class,
     ];
 
     /**
